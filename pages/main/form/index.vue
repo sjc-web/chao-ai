@@ -6,7 +6,7 @@
 			<view class="header">
 				<view class="title">
 					<view>人工智能回答你需要的问题</view>
-					<view>每天免费额度5次/剩余{{ isnum }}次</view>
+					<view>免费额度{{freePerDay}}次/剩余{{ isnum }}次</view>
 				</view>
 			</view>
 			<u-transition :show="true" mode="fade-left">
@@ -23,7 +23,7 @@
 							<u-button icon="file-text" text="粘贴问题" @click="handlezt"></u-button>
 						</view>
 						<view class="btn get">
-							<u-button @click="onSubmitGPT" iconColor="#ffffff" color="#26B3A0" icon="edit-pen"
+							<u-button @click="onSubmitGPT" iconColor="#ffffff" color="#6c6ceb" icon="edit-pen"
 								text="获取问题答案"></u-button>
 						</view>
 					</view>
@@ -41,8 +41,7 @@
 				<view class="grid">
 					<view class="item">
 						<view class="icon">
-							<u-icon size="28"
-								name="/static/1.png">
+							<u-icon size="28" name="/static/1.png">
 							</u-icon>
 						</view>
 						<view class="title">AI回答</view>
@@ -50,8 +49,7 @@
 					</view>
 					<view class="item">
 						<view class="icon">
-							<u-icon size="28"
-								name="/static/2.png">
+							<u-icon size="28" name="/static/2.png">
 							</u-icon>
 						</view>
 						<view class="title">智能答案</view>
@@ -59,8 +57,7 @@
 					</view>
 					<view class="item">
 						<view class="icon">
-							<u-icon size="28"
-								name="/static/3.png">
+							<u-icon size="28" name="/static/3.png">
 							</u-icon>
 						</view>
 						<view class="title">自动代码</view>
@@ -68,8 +65,7 @@
 					</view>
 					<view class="item">
 						<view class="icon">
-							<u-icon size="28"
-								name="/static/4.png">
+							<u-icon size="28" name="/static/4.png">
 							</u-icon>
 						</view>
 						<view class="title">引导写作</view>
@@ -77,8 +73,7 @@
 					</view>
 					<view class="item">
 						<view class="icon">
-							<u-icon size="28"
-								name="/static/5.png">
+							<u-icon size="28" name="/static/5.png">
 							</u-icon>
 						</view>
 						<view class="title">存在限制</view>
@@ -86,8 +81,7 @@
 					</view>
 					<view class="item">
 						<view class="icon">
-							<u-icon size="28"
-								name="/static/6.png">
+							<u-icon size="28" name="/static/6.png">
 							</u-icon>
 						</view>
 						<view class="title">在线工具</view>
@@ -97,53 +91,140 @@
 			</u-transition>
 		</view>
 		<view class="share">
-			<u-button openType='share' shape="circle" color="#26B3A0" :plain="true" icon="share" text="推荐新朋友+3">
+			<u-button openType='share' shape="circle" color="#6c6ceb" :plain="true" icon="share">
+				{{'邀请新朋友+'+invite}}
 			</u-button>
 		</view>
 		<view class="btnss">
-			<u-button shape="circle" :plain="true" color="#26B3A0" text="观看广告+3">
+			<u-button shape="circle" :plain="true" color="#6c6ceb" @click="handleAd">
+				{{'观看广告+'+advertisement}}
 			</u-button>
 		</view>
 		<view class="btns">
-			<u-button @click="handleCopy" shape="circle" :plain="true" color="#26B3A0" icon="file-text" text="复制用户ID">
+			<u-button @click="handleCopy" shape="circle" :plain="true" color="#6c6ceb" icon="file-text" text="复制用户ID">
 			</u-button>
 		</view>
-		<u-modal :show="show" :title="title" :content='content' @confirm="confirm" showCancelButton @cancel="cancel">
-		</u-modal>
 		<u-toast ref="uToast"></u-toast>
 	</view>
 </template>
 
 <script>
+	import {
+		checkText,
+		AddCount
+	} from "@/uni_modules/chao-AI/js_sdk/index.js"
+	import {
+		handleConfig,
+		handleTime
+	} from "@/uni_modules/chao-AI/js_sdk/common.js"
 	// 在页面中定义激励视频广告
 	let videoAd = null
 	// 在页面中定义插屏广告
 	let interstitialAd = null
-	import {
-		handlelkist,
-		handleopdate,
-		getid,
-		getlist,
-		msgSecCheck
-	} from "@/servers/index.js"
 	export default {
 		data() {
 			return {
 				picshow: false,
 				text: '',
-				show: false,
-				isvalue: '普通线路',
-				type: '1',
-				title: '提示',
-				columns: [],
-				content: '由于AI模型计费,需观看广告后免费使用。',
+				isvalue: '标准线路',
+				columns: [
+					[{
+						id: '1',
+						type: '',
+						label: '标准线路',
+					}]
+				],
 				isday: 0,
-				isnum: 5
+				isnum: 5,
+				invite: 0,
+				freePerDay: 0,
+				advertisement: 0,
+				openid: '',
+				obj: {},
+				id: ''
 			};
 		},
-		async onLoad() {},
+		async onLoad({
+			id
+		}) {
+			const that = this
+			that.id = id
+			// 在页面onLoad回调事件中创建激励视频广告实例
+			if (wx.createRewardedVideoAd) {
+				videoAd = wx.createRewardedVideoAd({
+					adUnitId: 'adunit-593140983fbc3c32'
+				})
+				videoAd.onLoad(() => {})
+				videoAd.onError((err) => {
+					uni.showToast({
+						title: '暂未开放，请邀请好友',
+						icon: 'none',
+						duration: 2000,
+					});
+				})
+				videoAd.onClose((res) => {
+					if (res.isEnded) {
+						that.handleAdd(that.openid, that.advertisement)
+						return
+					} else {
+						uni.showToast({
+							title: '请不要中途退出!',
+							icon: 'none',
+							duration: 2000,
+						});
+					}
+				})
+			}
+			// 在页面onLoad回调事件中创建插屏广告实例
+			if (wx.createInterstitialAd) {
+				interstitialAd = wx.createInterstitialAd({
+					adUnitId: 'adunit-95b8a52407a3d13e'
+				})
+				interstitialAd.onLoad(() => {})
+				interstitialAd.onError((err) => {})
+				interstitialAd.onClose(() => {})
+			}
+			const flag = await handleTime()
+			const value = uni.getStorageSync('config');
+			if (value && flag) {
+				const {
+					day,
+					freePerDay,
+					invite,
+					num,
+					openid,
+					advertisement
+				} = value
+				this.isday = day
+				this.isnum = num
+				this.invite = invite
+				this.freePerDay = freePerDay
+				this.advertisement = advertisement
+				this.openid = openid
+				this.obj = value
+				return
+			}
+			uni.login({
+				provider: "weixin",
+				success(res) {
+					uni.showLoading({
+						title: '加载中',
+						mask: true
+					})
+					that.handlefig(res.code)
+				}
+			})
+		},
 		onShow() {
 			const that = this
+			setTimeout(() => {
+				// 在适合的场景显示插屏广告
+				if (interstitialAd && that.isday === 0) {
+					interstitialAd.show().catch((err) => {
+						console.error(err)
+					})
+				}
+			}, 1000)
 		},
 		onShareAppMessage: function(options) {
 			const that = this;
@@ -151,7 +232,7 @@
 			const shareObj = {
 				title: '一键AI问答',
 				imageUrl: '/static/wenda.png', //自定义图片路径，可以是本地文件路径、代码包文件路径或者网络图片路径，支持PNG及JPG，不传入 imageUrl 则使用默认截图。显示图片长宽比是 5:4
-				path: '/pages/main/form/index',
+				path: '/pages/main/form/index?id=' + that.openid,
 			};
 			// 返回shareObj
 			return shareObj;
@@ -162,16 +243,67 @@
 			const shareObj = {
 				title: '一键AI问答',
 				imageUrl: '/static/wenda.png', //自定义图片路径，可以是本地文件路径、代码包文件路径或者网络图片路径，支持PNG及JPG，不传入 imageUrl 则使用默认截图。显示图片长宽比是 5:4
-				path: '/pages/main/form/index',
+				path: '/pages/main/form/index?id=' + that.openid,
 			};
 			// 返回shareObj
 			return shareObj;
 		},
 		methods: {
+			handleAd() {
+				if (videoAd) {
+					videoAd.show().catch(() => {
+						// 失败重试
+						videoAd.load()
+							.then(() => videoAd.show())
+							.catch(err => {
+								console.log('激励视频 广告显示失败')
+							})
+					})
+					return
+				}
+			},
+			async handleAdd(id, count) {
+				const that = this
+				const res = await AddCount({
+					openid: id,
+					count: count
+				})
+				that.isnum = that.isnum + count
+				uni.setStorageSync('config', {
+					...that.obj,
+					num: that.isnum
+				});
+				uni.showToast({
+					title: '恭喜成功获取使用额度',
+					icon: 'none',
+					duration: 2000,
+				});
+			},
+			async handlefig(code) {
+				const res = await handleConfig(code)
+				const {
+					day,
+					freePerDay,
+					invite,
+					num,
+					openid,
+					advertisement
+				} = res
+				this.isday = day
+				this.isnum = num
+				this.invite = invite
+				this.freePerDay = freePerDay
+				this.advertisement = advertisement
+				this.openid = openid
+				uni.hideLoading()
+				this.obj = res
+				if (!this.id) return
+				await this.handleAdd(this.id, invite)
+			},
 			handleCopy() {
 				const that = this
 				uni.setClipboardData({
-					data: '3',
+					data: that.openid,
 					success: function() {}
 				})
 			},
@@ -182,9 +314,23 @@
 				this.picshow = false
 			},
 			handleconfirm(data) {
+				if (data.value[0].type === 'url') {
+					uni.navigateTo({
+						url: '/pages/main/webview/webview?url=' + encodeURIComponent(data.value[0].url)
+					})
+					return
+				}
+				if (data.value[0].type === 'app') {
+					uni.navigateToMiniProgram({
+						appId: data.value[0].url,
+						success(res) {
+							// 打开成功
+						}
+					})
+					return
+				}
 				this.picshow = false
 				this.isvalue = data.value[0].label
-				this.type = data.value[0].id
 			},
 			async handlelog() {
 				const that = this
@@ -199,27 +345,41 @@
 				}
 				if (that.isday === 0) {
 					that.isnum = that.isnum - 1
+					uni.setStorageSync('config', {
+						...that.obj,
+						num: that.isnum
+					});
 				}
-				uni.navigateTo({
-					url: '/pages/main/answer/index?text=' + that.text + '&openid=' + 1
+				uni.showLoading({
+					title: '文本安全检测中',
+					mask: true
 				})
-				return
-			},
-			cancel() {
-				this.show = false;
-			},
-			confirm() {
-				this.show = false;
-				if (videoAd) {
-					videoAd.show().catch(() => {
-						// 失败重试
-						videoAd.load()
-							.then(() => videoAd.show())
-							.catch(err => {
-								console.log('激励视频 广告显示失败')
-							})
+				const resa = await checkText({
+					params: {
+						prompt: that.text,
+						openid: that.openid,
+						id: uni.getAccountInfoSync().miniProgram.appId,
+					},
+					actions: 'msgSecCheck',
+				})
+				const newresult = [];
+				resa.data.detail.filter(async item => {
+					if (item.label === 100) {
+						newresult.push(item);
+						return;
+					}
+				});
+				if (newresult.length === 0) return uni.showToast({
+					title: '存在敏感词汇，请更换重新输入',
+					duration: 3000,
+					mask: true,
+					icon: 'none'
+				});
+				uni.hideLoading()
+				if (resa.data.errcode === 0) {
+					uni.navigateTo({
+						url: '/pages/main/answer/index?text=' + that.text + '&openid=' + that.openid
 					})
-					return
 				}
 			},
 			handlezt() {
@@ -250,7 +410,7 @@
 		position: fixed;
 		right: 40rpx;
 		bottom: 100rpx;
-		width: 40%;
+		width: 45%;
 
 		.u-button {
 			box-shadow: 0rpx 10rpx 10rpx #eee !important;
@@ -261,7 +421,7 @@
 		position: fixed;
 		right: 40rpx;
 		bottom: 220rpx;
-		width: 40%;
+		width: 45%;
 
 		.u-button {
 			box-shadow: 0rpx 10rpx 10rpx #eee !important;
@@ -272,7 +432,7 @@
 		position: fixed;
 		right: 40rpx;
 		bottom: 340rpx;
-		width: 40%;
+		width: 45%;
 
 		.u-button {
 			box-shadow: 0rpx 10rpx 10rpx #eee !important;
@@ -311,7 +471,7 @@
 				display: flex;
 				flex-direction: column;
 				align-items: center;
-				background-color: #F0FAF8;
+				background-color: #e8eafe;
 				margin: 15rpx 0rpx;
 				padding: 30rpx 0rpx;
 				border-radius: 10rpx;
@@ -393,7 +553,7 @@
 		top: 0rpx;
 		left: 0rpx;
 		width: 100%;
-		background-color: #26B3A0;
+		background-color: #6c6ceb;
 		min-height: 200rpx;
 		border-radius: 0rpx 0rpx 140rpx 140rpx;
 		z-index: -1;

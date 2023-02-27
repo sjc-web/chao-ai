@@ -4,15 +4,18 @@
         "sass-loader": "^10.4.1"
     },
     "dependencies": {
+        "crypto-js": "^4.1.1",
         "uview-ui": "^2.0.31"
     },
-    "id": "Coder-ChatGPT",
-    "name": "火爆全网的ChatGPT页面模板，让AI回答你的任何问题！",
-    "displayName": "火爆全网的ChatGPT页面模板，让AI回答你的任何问题！",
-    "version": "1.0.6",
-    "description": "火爆全网的ChatGPT，微信小程序纯页面模板，分享只为交个朋友",
+    "id": "chaochao-ChatGPT",
+    "name": "ChatGPT前端页面模板，AI问答，AI对话，下载即可运行！",
+    "displayName": "ChatGPT前端页面模板，AI问答，AI对话，下载即可运行！",
+    "version": "1.0.0",
+    "description": "ChatGPT前端页面模板，AI问答，AI对话（包含上下文），下载即可运行！",
     "keywords": [
-        "ChatGPT"
+        "ChatGPT",
+        "AI对话",
+        "AI问答"
     ],
     "dcloudext": {
         "category": [

@@ -16,7 +16,7 @@
 			"style": {
 				"navigationBarTitleText": "AI问答",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#26B3A0",
+				"navigationBarBackgroundColor": "#6c6ceb",
 				"navigationBarTextStyle": "white"
 			}
 		}, {
@@ -24,7 +24,7 @@
 			"style": {
 				"navigationBarTitleText": "AI问答",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#26B3A0",
+				"navigationBarBackgroundColor": "#6c6ceb",
 				"navigationBarTextStyle": "white"
 			}
 		}, {
@@ -32,7 +32,7 @@
 			"style": {
 				"navigationBarTitleText": "AI问答",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#26B3A0",
+				"navigationBarBackgroundColor": "#6c6ceb",
 				"navigationBarTextStyle": "white"
 			}
 		}, {
@@ -40,23 +40,57 @@
 			"style": {
 				"navigationBarTitleText": "AI对话",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#26B3A0",
+				"navigationBarBackgroundColor": "#6c6ceb",
+				"navigationBarTextStyle": "white"
+			}
+
+		}, {
+			"path": "pages/main/duihuas/duihuas",
+			"style": {
+				"navigationBarTitleText": "AI对话",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#6c6ceb",
+				"navigationBarTextStyle": "white"
+			}
+
+		},{
+			"path": "pages/admin/index",
+			"style": {
+				"navigationBarTitleText": "管理后台",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#6c6ceb",
+				"navigationBarTextStyle": "white"
+			}
+		
+		}, {
+			"path": "pages/admin/application/application",
+			"style": {
+				"navigationBarTitleText": "应用配置",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#6c6ceb",
+				"navigationBarTextStyle": "white"
+			}
+
+		}, {
+			"path": "pages/admin/keymanagement/keymanagement",
+			"style": {
+				"navigationBarTitleText": "KEY管理",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#6c6ceb",
+				"navigationBarTextStyle": "white"
+			}
+
+		}, {
+			"path": "pages/admin/usermanagement/usermanagement",
+			"style": {
+				"navigationBarTitleText": "用户管理",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#6c6ceb",
 				"navigationBarTextStyle": "white"
 			}
 
 		}
-	    ,{
-            "path" : "pages/main/duihuas/duihuas",
-            "style" :                                                                                    
-            {
-               	"navigationBarTitleText": "AI对话",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#26B3A0",
-				"navigationBarTextStyle": "white"
-            }
-            
-        }
-    ],
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "AI问答",

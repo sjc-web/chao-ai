@@ -2,34 +2,39 @@
 	<view class="container">
 		<view class="form">
 			<view class="logo">
-				<u--image src="/static/wxlogo.png" shape="circle" width="200rpx" height="200rpx">
+				<u--image src="https://wx.qlogo.cn/mmhead/Q3auHgzwzM55kOdw21icYsGmEojHmk3XMqRLWIZPkZJ6uBLvqdf6SxA/0"
+					shape="circle" width="200rpx" height="200rpx">
 				</u--image>
 			</view>
 			<u-transition :show="true" mode="slide-left">
 				<view class="title">一键AI问答</view>
 			</u-transition>
 			<u-transition :show="true" mode="slide-right">
-				<view class="desc">AI界的新神器，AI帮你写答案！</view>
+				<view class="desc">知你困境，解你烦恼，AI帮你写答案！</view>
 			</u-transition>
 			<view class="btn-group">
 				<view class="btn" v-on:click="onToForm">
-					<u-button shape="circle" iconColor="#ffffff" color="#26B3A0" icon="edit-pen" text="AI问答(免注册体验)">
+					<u-button shape="circle" iconColor="#ffffff" color="#6c6ceb" icon="edit-pen" text="AI问答">
 					</u-button>
 				</view>
 				<view class="btn" v-on:click="onToDuihua">
-					<u-button shape="circle" iconColor="#ffffff" color="#26B3A0" icon="edit-pen" text="AI对话(免注册体验)">
+					<u-button shape="circle" iconColor="#ffffff" color="#6c6ceb" icon="edit-pen" text="AI对话">
 					</u-button>
 				</view>
 				<view class="btn" v-on:click="onToDuihuas">
-					<u-button shape="circle" iconColor="#ffffff" color="#26B3A0" icon="edit-pen" text="AI对话(已注册)">
+					<u-button shape="circle" iconColor="#ffffff" color="#6c6ceb" icon="edit-pen" text="AI对话(已注册)">
 					</u-button>
 				</view>
 				<view class="btn" v-on:click="onToWeb">
-					<u-button shape="circle" iconColor="#ffffff" color="#26B3A0" text="注册攻略">
+					<u-button shape="circle" iconColor="#ffffff" color="#6c6ceb" text="注册攻略">
+					</u-button>
+				</view>
+				<view v-if="admin" class="btn" v-on:click="onToAdmin">
+					<u-button shape="circle" iconColor="#ffffff" color="#6c6ceb" text="管理后台">
 					</u-button>
 				</view>
 				<view class="btn">
-					<u-button open-type='contact' color="#26B3A0" :plain="true" text="咨询客服(业务沟通)"></u-button>
+					<u-button open-type='contact' color="#6c6ceb" :plain="true" text="咨询客服(意见反馈)"></u-button>
 				</view>
 			</view>
 		</view>
@@ -37,11 +42,37 @@
 </template>
 
 <script>
+	import {
+		handleConfig,
+		handleTime
+	} from "@/uni_modules/chao-AI/js_sdk/common.js"
 	export default {
 		data() {
 			return {
-
+				admin: false
 			};
+		},
+		async onLoad() {
+			const flag = await handleTime()
+			const value = uni.getStorageSync('config');
+			const that = this
+			if (value && flag) {
+				const {
+					admin
+				} = value
+				that.admin = admin
+				return
+			}
+			uni.login({
+				provider: "weixin",
+				success(res) {
+					uni.showLoading({
+						title: '加载中',
+						mask: true
+					})
+					that.handlefig(res.code)
+				}
+			})
 		},
 		onShareAppMessage: function() {
 			return {
@@ -56,6 +87,32 @@
 			};
 		},
 		methods: {
+			dianyingpiao() {
+				uni.navigateToMiniProgram({
+					appId: 'wx6c405b6b53d74d46',
+					success(res) {
+						// 打开成功
+					}
+				})
+
+			},
+			muyunianzhu() {
+				uni.navigateToMiniProgram({
+					appId: 'wxc0e877ab5c03d468',
+					success(res) {
+						// 打开成功
+					}
+				})
+
+			},
+			async handlefig(code) {
+				const res = await handleConfig(code)
+				const {
+					admin
+				} = res
+				this.admin = admin
+				uni.hideLoading()
+			},
 			onToForm() {
 				uni.navigateTo({
 					url: '/pages/main/form/index'
@@ -69,6 +126,11 @@
 			onToDuihuas() {
 				uni.navigateTo({
 					url: '/pages/main/duihuas/duihuas'
+				})
+			},
+			onToAdmin() {
+				uni.navigateTo({
+					url: '/pages/admin/index'
 				})
 			},
 			onToWeb() {
